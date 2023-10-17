@@ -1,93 +1,53 @@
-print("\n")
-print("\tGame Start\nNow the task is to move all of them to right side of the river")
-print("rules:\n1. The boat can carry at most two people\n2. If cannibals num greater then missionaries then the cannibals would eat the missionaries\n3. The boat cannot cross the river by itself with no people on board")
-lM = 3   #lM = Left side Missionaries number
-lC = 3   #lC = Laft side Cannibals number
-rM=0   #rM = Right side Missionaries number
-rC=0   #rC = Right side cannibals number
-userM = 0  #userM = User input for number of missionaries for right to left side travel
-userC = 0  #userC = User input for number of cannibals for right to left travel
-k = 0
-print("\nM M M C C C |  --- | \n")
-try:
- while(True):
-  while(True):
-   print("Left side -> right side river travel")
-   #uM = user input for number of missionaries for left to right travel
-   #uC = user input for number of cannibals for left to right travel
-   uM = int(input("Enter number of Missionaries travel => "))
-   uC = int(input("Enter number of Cannibals travel => "))
-
-   if((uM==0)and(uC==0)):
-    print("Empty travel not possible")
-    print("Re-enter : ")
-   elif(((uM+uC) <= 2)and((lM-uM)>=0)and((lC-uC)>=0)):
-    break
-   else:
-    print("Wrong input re-enter : ")
-  lM = (lM-uM)
-  lC = (lC-uC)
-  rM += uM
-  rC += uC
-
-  print("\n")
-  for i in range(0,lM):
-   print("M ",end="")
-  for i in range(0,lC):
-   print("C ",end="")
-  print("| --> | ",end="")
-  for i in range(0,rM):
-   print("M ",end="")
-  for i in range(0,rC):
-   print("C ",end="")
-  print("\n")
-
-  k +=1
-
-  if(((lC==3)and (lM == 1))or((lC==3)and(lM==2))or((lC==2)and(lM==1))or((rC==3)and (rM == 1))or((rC==3)and(rM==2))or((rC==2)and(rM==1))):
-   print("Cannibals eat missionaries:\nYou lost the game")
-
-   break
-
-  if((rM+rC) == 6):
-   print("You won the game : \n\tCongrats")
-   print("Total attempt")
-   print(k)
-   break
-  while(True):
-   print("Right side -> Left side river travel")
-   userM = int(input("Enter number of Missionaries travel => "))
-   userC = int(input("Enter number of Cannibals travel => "))
-   
-   if((userM==0)and(userC==0)):
-     print("Empty travel not possible")
-     print("Re-enter : ")
-   elif(((userM+userC) <= 2)and((rM-userM)>=0)and((rC-userC)>=0)):
-    break
-   else:
-    print("Wrong input re-enter : ")
-  lM += userM
-  lC += userC
-  rM -= userM
-  rC -= userC
-
-  k +=1
-  print("\n")
-  for i in range(0,lM):
-   print("M ",end="")
-  for i in range(0,lC):
-   print("C ",end="")
-  print("| <-- | ",end="")
-  for i in range(0,rM):
-   print("M ",end="")
-  for i in range(0,rC):
-   print("C ",end="")
-  print("\n")
-
- 
-
-  if(((lC==3)and (lM == 1))or((lC==3)and(lM==2))or((lC==2)and(lM==1))or((rC==3)and (rM == 1))or((rC==3)and(rM==2))or((rC==2)and(rM==1))):
-   print("Cannibals eat missionaries:\nYou lost the game")
-   break
-except EOFError as e:
- print("\nInvalid input please retry !!")
+print("MISSIONARIES AND CANNIBAL PROBLEM")
+print("V.sahithi-192111160")
+from collections import deque
+initial_state = (3, 3, 1)  
+goal_state = (0, 0, 0)     
+max_missionaries = 3
+max_cannibals = 3
+def is_valid(state):
+    missionaries_left, cannibals_left, boat_side = state
+    if missionaries_left < 0 or missionaries_left > max_missionaries:
+        return False
+    if cannibals_left < 0 or cannibals_left > max_cannibals:
+        return False
+    if missionaries_left < cannibals_left and missionaries_left > 0:
+        return False
+    if max_missionaries - missionaries_left < max_cannibals - cannibals_left and max_missionaries - missionaries_left > 0:
+        return False
+    return True
+def generate_next_states(state):
+    states = []
+    missionaries_left, cannibals_left, boat_side = state
+    for m in range(3):
+        for c in range(3):
+            if 1 <= m + c <= 2:
+                new_missionaries_left = missionaries_left - m if boat_side == 1 else missionaries_left + m
+                new_cannibals_left = cannibals_left - c if boat_side == 1 else cannibals_left + c
+                new_boat_side = 1 - boat_side
+                new_state = (new_missionaries_left, new_cannibals_left, new_boat_side)
+                if is_valid(new_state):
+                    states.append(new_state)
+    return states
+def bfs():
+    visited = set()
+    queue = deque([(initial_state, [])])
+    while queue:
+        state, path = queue.popleft()
+        if state == goal_state:
+            return path
+        visited.add(state)
+        for next_state in generate_next_states(state):
+            if next_state not in visited:
+                queue.append((next_state, path + [next_state]))
+    return None
+def main():
+    solution_path = bfs()
+    if solution_path:
+        print("Solution:")
+        for state in solution_path:
+            print(state)
+    else:
+        print("No solution found.")
+if __name__ == "__main__":
+    main()
